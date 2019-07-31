@@ -9,7 +9,7 @@ module.exports = {
     proxy: {
       // 配置跨域
       '/api': {
-        target: 'https://vuets-api.herokuapp.com/api/',
+        target: 'http://localhost:7000/api/',
         ws: true,
         changOrigin: true,
         pathRewrite: {

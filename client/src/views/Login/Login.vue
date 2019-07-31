@@ -50,7 +50,7 @@ import { State, Getter, Mutation, Action } from "vuex-class";
 })
 export default class Login extends Vue {
   //设置action
-  @Action("setUser") setCurrentUser: any
+  @Action("setUser") setCurrentUser: any;
   //装饰器 装饰data 以前写在data(){}方法里面的
   @Provide() loginForm: {
     username: String;
@@ -71,22 +71,25 @@ export default class Login extends Vue {
 
   login(): void {
     (this.$refs["loginForm"] as any).validate((valid: Boolean) => {
-      if(valid) {
+      if (valid) {
         this.isLogin = true;
-        (this as any).$axios.post("/api/users/login", this.loginForm).then((res: any) => {
-          this.isLogin = false;
-          //存储token
-          localStorage.setItem("bsToken", res.data.token)
-          //存储用户到vuex
-          this.setCurrentUser(res.data.token)
-          // 登录成功 跳转 /
-          this.$router.push("/");
-        }).catch((err: any) => {
-          console.log(err)
-          this.isLogin = false;
-        })
+        (this as any).$axios
+          .post("/api/user/login/12", this.loginForm)
+          .then((res: any) => {
+            this.isLogin = false;
+            //存储token
+            localStorage.setItem("bsToken", res.data.token);
+            //存储用户到vuex
+            this.setCurrentUser(res.data.token);
+            // 登录成功 跳转 /
+            this.$router.push("/");
+          })
+          .catch((err: any) => {
+            console.log(err);
+            this.isLogin = false;
+          });
       }
-    })
+    });
   }
 }
 </script>

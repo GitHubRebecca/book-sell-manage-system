@@ -2,9 +2,16 @@ const koa = require("koa")
 const KoaRouter = require('koa-router')
 const router = new KoaRouter()
 const bodyParser = require('koa-bodyparser')
+const mongoose = require("mongoose")
 const user = require("./api/user")
 
 const app = new koa()
+
+mongoose.connect("mongodb://localhost:27017/bookstore").then(res => {
+  console.log("mongodb connect success")
+}).catch(err => {
+  console.log(err, "mongodb connect error")
+})
 
 router.use("/api/user", user)
 

@@ -74,7 +74,7 @@ export default class Login extends Vue {
       if (valid) {
         this.isLogin = true;
         (this as any).$axios
-          .post("/api/user/login/12", this.loginForm)
+          .post("/api/user/login", this.loginForm)
           .then((res: any) => {
             this.isLogin = false;
             //存储token

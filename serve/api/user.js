@@ -1,8 +1,8 @@
 const KoaRouter = require('koa-router')
 const router = new KoaRouter()
 
-router.post("/login/:id", ctx => {
-  console.log(ctx.request.body)
+router.post("/login", ctx => {
+  
   ctx.body = 'text'
 })
 

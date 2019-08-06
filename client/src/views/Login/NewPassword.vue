@@ -70,10 +70,6 @@ export default class NewPassword extends Vue {
   };
 
   handleSubmit(): void {
-    this.$router.push({
-      name: "login"
-    });
-    return
     (this.$refs["ruleForm"] as any).validate((valid: boolean) => {
       if (valid) {
         this.loading = true;

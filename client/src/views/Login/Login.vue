@@ -53,24 +53,24 @@ export default class Login extends Vue {
   @Action("setUser") setCurrentUser: any;
   //装饰器 装饰data 以前写在data(){}方法里面的
   @Provide() loginForm: {
-    username: String;
-    pwd: String;
-    autoLogin: Boolean;
+    username: string;
+    pwd: string;
+    autoLogin: boolean;
   } = {
     username: "",
     pwd: "",
     autoLogin: true
   };
 
-  @Provide() rules: Object = {
+  @Provide() rules: object = {
     username: [{ required: true, message: "请输入账号", trigger: "blur" }],
     pwd: [{ required: true, message: "请输入密码", trigger: "blur" }]
   };
 
-  @Provide() isLogin: Boolean = false;
+  @Provide() isLogin: boolean = false;
 
   login(): void {
-    (this.$refs["loginForm"] as any).validate((valid: Boolean) => {
+    (this.$refs["loginForm"] as any).validate((valid: boolean) => {
       if (valid) {
         this.isLogin = true;
         (this as any).$axios

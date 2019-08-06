@@ -35,21 +35,21 @@ import LoginHeader from "@/components/LoginHeader.vue";
   }
 })
 export default class Code extends Vue {
-  @Provide() name: string = ''
-
   @Provide() loading: boolean = false; // 是否发起网络请求
 
-  @Provide() ruleForm: { code: string } = {
-    code: ""
+  @Provide() ruleForm: { code: string, name: string } = {
+    code: "",
+    name: ''
   };
 
   @Provide() rules = {
-    code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
+    code: [
+      { required: true, message: "请输入验证码", trigger: "blur" },
+      {min: 4, max: 4, message: "请输入四位有效验证码", trigger: "blur"}
+    ]
   };
 
   handleSubmit(): void {
-    this.$router.push("/newpassword")
-    return
     (this.$refs["ruleForm"] as any).validate((valid: boolean) => {
       if (valid) {
         this.loading = true;
@@ -65,7 +65,7 @@ export default class Code extends Vue {
               });
               this.$router.push({
                 name: "newpassword",
-                params: { name: this.name } //params传参刷新页面 参数取不到
+                params: { name: this.ruleForm.name } //params传参刷新页面 参数取不到
               });
             } else {
               this.$message({
@@ -82,7 +82,7 @@ export default class Code extends Vue {
     });
   }
   mounted() {
-    this.name = this.$route.params.name
+    this.ruleForm.name = this.$route.params.name
   }
 }
 </script>

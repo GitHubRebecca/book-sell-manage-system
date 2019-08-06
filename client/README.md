@@ -6,5 +6,7 @@
   需要安装vuex-class来提供State getter Mutation Action装饰器
   需要安装@types/jwt-decode来辅助jwt-decode的使用
   使用nodemailer发送邮件
+  使用redis存储验证码
+  使用bluebird使操作redis异步化
 
 

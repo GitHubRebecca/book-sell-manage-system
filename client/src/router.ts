@@ -43,6 +43,8 @@ router.beforeEach((to: any, from: any, next: any) => {
   const bsToken = localStorage.getItem("bsToken")
   if (to.path == '/login' || to.path == '/password') {
     next()
+  } else if((to.path == "/code" && from.path == "/password") || (to.path == "/newpassword" && from.path == "/code")) {
+    next("/login")
   } else {
     bsToken ? next() : next("/login")
   }

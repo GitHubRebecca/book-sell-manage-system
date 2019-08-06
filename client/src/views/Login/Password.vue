@@ -66,10 +66,6 @@ export default class Password extends Vue {
   };
 
   handleSubmit(): void {
-    return this.$router.push({
-      name: "code",
-      params: { name: this.ruleForm.username }
-    });
     (this.$refs["ruleForm"] as any).validate((valid: boolean) => {
       if (valid) {
         this.loading = true;

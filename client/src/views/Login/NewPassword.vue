@@ -3,19 +3,29 @@
     <LoginHeader>
       <el-form slot="container" :model="ruleForm" :rules="rules" ref="ruleForm">
         <div class="title">
-          <h3>账号邮箱验证</h3>
+          <h3>修改密码</h3>
         </div>
-        <!-- username -->
-        <el-form-item prop="username">
-          <el-input type="text" v-model="ruleForm.username" auto-complete="off" placeholder="账号">
-            <i slot="prefix" class="fa fa-user-o"></i>
+        <!-- password1 -->
+        <el-form-item prop="password1">
+          <el-input
+            type="text"
+            v-model="ruleForm.password1"
+            auto-complete="off"
+            placeholder="请输入新密码"
+          >
+            <i slot="prefix" class="fa fa-lock"></i>
           </el-input>
         </el-form-item>
 
-        <!-- email -->
-        <el-form-item prop="email">
-          <el-input type="text" v-model="ruleForm.email" auto-complete="off" placeholder="邮箱">
-            <i slot="prefix" class="fa fa-envelope-o"></i>
+        <!-- password2 -->
+        <el-form-item prop="password2">
+          <el-input
+            type="text"
+            v-model="ruleForm.password2"
+            auto-complete="off"
+            placeholder="再次确认密码"
+          >
+            <i slot="prefix" class="fa fa-lock"></i>
           </el-input>
         </el-form-item>
 
@@ -41,41 +51,35 @@ import LoginHeader from "@/components/LoginHeader.vue";
     LoginHeader
   }
 })
-export default class Password extends Vue {
+export default class NewPassword extends Vue {
   @Provide() loading: boolean = false; // 是否发起网络请求
 
-  @Provide() ruleForm: { username: string; email: string } = {
-    username: "",
-    email: ""
+  @Provide() ruleForm: {
+    password1: string;
+    password2: string;
+    name: string;
+  } = {
+    password1: "",
+    password2: "",
+    name: ""
   };
 
   @Provide() rules = {
-    username: [{ required: true, message: "请输入账号", trigger: "blur" }],
-    email: [
-      {
-        required: true,
-        message: "请输入邮箱地址",
-        trigger: "blur"
-      },
-      {
-        type: "email",
-        message: "请输入正确的邮箱地址",
-        trigger: "blur"
-      }
-    ]
+    password1: [{ required: true, message: "请输入新密码", trigger: "blur" }],
+    password2: [{ required: true, message: "请输入新密码", trigger: "blur" }]
   };
 
   handleSubmit(): void {
-    return this.$router.push({
-      name: "code",
-      params: { name: this.ruleForm.username }
+    this.$router.push({
+      name: "login"
     });
+    return
     (this.$refs["ruleForm"] as any).validate((valid: boolean) => {
       if (valid) {
         this.loading = true;
         // 网络请求
         (this as any).$axios
-          .post("/api/user/sendCode", this.ruleForm)
+          .post("/api/user/newPassword", this.ruleForm)
           .then((res: any) => {
             this.loading = false;
             if (res.data.isSuccess) {
@@ -84,8 +88,7 @@ export default class Password extends Vue {
                 type: "success"
               });
               this.$router.push({
-                name: "code",
-                params: { name: this.ruleForm.username } //params传参刷新页面 参数取不到
+                name: "login"
               });
             } else {
               this.$message({
@@ -100,6 +103,10 @@ export default class Password extends Vue {
           });
       }
     });
+  }
+
+  mounted() {
+    this.ruleForm.name = this.$route.params.name;
   }
 }
 </script>

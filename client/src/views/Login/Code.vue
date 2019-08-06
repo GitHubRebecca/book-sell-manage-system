@@ -1,28 +1,21 @@
 <template>
-  <div class="password-wrapper">
+  <div class="newpassword-wrapper">
     <LoginHeader>
       <el-form slot="container" :model="ruleForm" :rules="rules" ref="ruleForm">
         <div class="title">
-          <h3>账号邮箱验证</h3>
+          <h3>验证码</h3>
         </div>
-        <!-- username -->
-        <el-form-item prop="username">
-          <el-input type="text" v-model="ruleForm.username" auto-complete="off" placeholder="账号">
-            <i slot="prefix" class="fa fa-user-o"></i>
-          </el-input>
-        </el-form-item>
-
-        <!-- email -->
-        <el-form-item prop="email">
-          <el-input type="text" v-model="ruleForm.email" auto-complete="off" placeholder="邮箱">
-            <i slot="prefix" class="fa fa-envelope-o"></i>
+        <!-- code -->
+        <el-form-item prop="code">
+          <el-input type="text" v-model="ruleForm.code" placeholder="请输入验证码">
+            <i slot="prefix" class="fa fa-wrench"></i>
           </el-input>
         </el-form-item>
 
         <!-- 确定 -->
         <el-form-item>
           <el-button
-            @click.native.prevent="handleSubmit"
+            @click="handleSubmit"
             :loading="loading"
             type="primary"
             style="width:100%;"
@@ -41,41 +34,28 @@ import LoginHeader from "@/components/LoginHeader.vue";
     LoginHeader
   }
 })
-export default class Password extends Vue {
+export default class Code extends Vue {
+  @Provide() name: string = ''
+
   @Provide() loading: boolean = false; // 是否发起网络请求
 
-  @Provide() ruleForm: { username: string; email: string } = {
-    username: "",
-    email: ""
+  @Provide() ruleForm: { code: string } = {
+    code: ""
   };
 
   @Provide() rules = {
-    username: [{ required: true, message: "请输入账号", trigger: "blur" }],
-    email: [
-      {
-        required: true,
-        message: "请输入邮箱地址",
-        trigger: "blur"
-      },
-      {
-        type: "email",
-        message: "请输入正确的邮箱地址",
-        trigger: "blur"
-      }
-    ]
+    code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
   };
 
   handleSubmit(): void {
-    return this.$router.push({
-      name: "code",
-      params: { name: this.ruleForm.username }
-    });
+    this.$router.push("/newpassword")
+    return
     (this.$refs["ruleForm"] as any).validate((valid: boolean) => {
       if (valid) {
         this.loading = true;
         // 网络请求
         (this as any).$axios
-          .post("/api/user/sendCode", this.ruleForm)
+          .post("/api/user/verifyCode", this.ruleForm)
           .then((res: any) => {
             this.loading = false;
             if (res.data.isSuccess) {
@@ -84,8 +64,8 @@ export default class Password extends Vue {
                 type: "success"
               });
               this.$router.push({
-                name: "code",
-                params: { name: this.ruleForm.username } //params传参刷新页面 参数取不到
+                name: "newpassword",
+                params: { name: this.name } //params传参刷新页面 参数取不到
               });
             } else {
               this.$message({
@@ -101,11 +81,14 @@ export default class Password extends Vue {
       }
     });
   }
+  mounted() {
+    this.name = this.$route.params.name
+  }
 }
 </script>
 
 <style scoped lang="scss">
-.password-wrapper {
+.newpassword-wrapper {
   .title {
     margin: 0px auto 40px auto;
     text-align: center;

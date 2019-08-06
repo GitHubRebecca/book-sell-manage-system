@@ -27,8 +27,8 @@ const Userschema = new Schema({
     trim: true
   },
   created: {
-    type: Data,
-    default: Data.now
+    type: Date,
+    default: Date.now
   }
 })
 

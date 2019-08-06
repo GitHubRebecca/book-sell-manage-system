@@ -77,12 +77,19 @@ export default class Login extends Vue {
           .post("/api/user/login", this.loginForm)
           .then((res: any) => {
             this.isLogin = false;
-            //存储token
-            localStorage.setItem("bsToken", res.data.token);
-            //存储用户到vuex
-            this.setCurrentUser(res.data.token);
-            // 登录成功 跳转 /
-            this.$router.push("/");
+            if(res.data.isSuccess) {
+              //存储token
+              localStorage.setItem("bsToken", res.data.result);
+              //存储用户到vuex
+              this.setCurrentUser(res.data.token);
+              // 登录成功 跳转 /
+              this.$router.push("/");
+            } else {
+              this.$message({
+                message: res.data.msg,
+                type: 'error'
+              })
+            }
           })
           .catch((err: any) => {
             console.log(err);

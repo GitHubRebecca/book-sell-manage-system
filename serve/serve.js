@@ -7,7 +7,7 @@ const user = require("./api/user")
 
 const app = new koa()
 
-mongoose.connect("mongodb://localhost:27017/bookstore").then(res => {
+mongoose.connect("mongodb://localhost:27017/bookstore", { useNewUrlParser: true }).then(res => {
   console.log("mongodb connect success")
 }).catch(err => {
   console.log(err, "mongodb connect error")

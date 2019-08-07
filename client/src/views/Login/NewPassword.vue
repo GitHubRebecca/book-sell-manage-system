@@ -12,6 +12,7 @@
             v-model="ruleForm.password1"
             auto-complete="off"
             placeholder="请输入新密码"
+            show-password
           >
             <i slot="prefix" class="fa fa-lock"></i>
           </el-input>
@@ -24,6 +25,7 @@
             v-model="ruleForm.password2"
             auto-complete="off"
             placeholder="再次确认密码"
+            show-password
           >
             <i slot="prefix" class="fa fa-lock"></i>
           </el-input>
@@ -65,11 +67,44 @@ export default class NewPassword extends Vue {
   };
 
   @Provide() rules = {
-    password1: [{ required: true, message: "请输入新密码", trigger: "blur" }],
-    password2: [{ required: true, message: "请输入新密码", trigger: "blur" }]
+    password1: [
+      { required: true, message: "请输入新密码", trigger: "blur" },
+      { validator: this.verifyPasswordAgreement, trigger: "blur" }
+    ],
+    password2: [
+      { required: true, message: "请输入新密码", trigger: "blur" },
+      { validator: this.verifyPasswordAgreement, trigger: "blur" }
+    ]
   };
 
+  //自定义验证器
+  verifyPasswordAgreement(rule, value, callback): void {
+    if (
+      rule.fullField == "password1" &&
+      this.ruleForm.password2 !== "" &&
+      value !== this.ruleForm.password2
+    ) {
+      callback(new Error("两次密码不一致"));
+    } else if (
+      rule.fullField == "password2" &&
+      this.ruleForm.password1 !== "" &&
+      value !== this.ruleForm.password1
+    ) {
+      callback(new Error("两次密码不一致"));
+    } else {
+      callback();
+    }
+  }
+
   handleSubmit(): void {
+    //判断是否还有name
+    if (!this.ruleForm.name) {
+      this.$message({
+        message: "账号不能为空，请返回重新验证",
+        type: "error"
+      });
+      return;
+    }
     (this.$refs["ruleForm"] as any).validate((valid: boolean) => {
       if (valid) {
         this.loading = true;

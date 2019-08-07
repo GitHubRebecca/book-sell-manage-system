@@ -50,6 +50,14 @@ export default class Code extends Vue {
   };
 
   handleSubmit(): void {
+    //判断是否还有name
+    if(!this.ruleForm.name){
+      this.$message({
+        message: '账号不能为空，请返回重新验证',
+        type: "error"
+      });
+      return
+    }
     (this.$refs["ruleForm"] as any).validate((valid: boolean) => {
       if (valid) {
         this.loading = true;

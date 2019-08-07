@@ -14,7 +14,7 @@
 
         <!-- password -->
         <el-form-item prop="pwd">
-          <el-input type="password" v-model="loginForm.pwd" placeholder="密码">
+          <el-input type="password" v-model="loginForm.pwd" placeholder="密码" @keyup.enter.native="login"><!-- 只有input才能添加键盘事件-->
             <i slot="prefix" class="fa fa-lock"></i>
           </el-input>
         </el-form-item>
@@ -81,7 +81,7 @@ export default class Login extends Vue {
               //存储token
               localStorage.setItem("bsToken", res.data.result);
               //存储用户到vuex
-              this.setCurrentUser(res.data.token);
+              this.setCurrentUser(res.data.result);
               // 登录成功 跳转 /
               this.$router.push("/");
             } else {

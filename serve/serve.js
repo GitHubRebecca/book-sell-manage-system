@@ -13,6 +13,7 @@ mongoose.connect("mongodb://localhost:27017/bookstore", { useNewUrlParser: true 
   console.log(err, "mongodb connect error")
 })
 
+//注册路由
 router.use("/api/user", user)
 
 

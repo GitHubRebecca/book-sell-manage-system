@@ -128,7 +128,7 @@ router.post("/sendCode", async ctx => {
 
   //redis存储code
   redisClient.set(ctx.request.body.username, code)
-  redisClient.expire(ctx.request.body.name, 60)
+  redisClient.expire(ctx.request.body.username, 60)
 
   return ctx.body = {
     isSuccess: true,

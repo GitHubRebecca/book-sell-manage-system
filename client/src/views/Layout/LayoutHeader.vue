@@ -10,7 +10,7 @@
         <el-dropdown @command="userCommand" class="system-user">
           <span class="userinfo-inner" v-if="getUser">
             <img :src="require('@/assets/' + getUser.indentity + '.jpg')" />
-            {{`${getUser.name} (${getIndentity()})`}}
+            {{`${getUser.name} (${getUserRole(getUser.indentity)})`}}
           </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="usercenter">个人中心</el-dropdown-item>
@@ -25,6 +25,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { State, Getter, Mutation, Action } from "vuex-class";
+import {getUserRole} from '../../utils/role'
 @Component({
   components: {}
 })
@@ -46,21 +47,8 @@ export default class LayoutHeader extends Vue {
   created() {
     console.log("user:", this.getUser);
   }
-  getIndentity(): string{
-    switch(this.getUser.indentity) {
-      case 'admin':
-        return '管理员'
-        break;
-      case 'shopowner':
-        return '店长'
-        break
-      case 'shopguide':
-        return '导购'
-        break
-      default:
-        return ''
-    }
-  }
+
+  getUserRole: any = getUserRole
 }
 </script>
 

@@ -11,13 +11,13 @@ export const routes = [
     name: 'layout',
     component: Layout,
     hidden: false,
-    meta: { title: "首页", icon: 'fa fa-user-plus'},
+    meta: { title: "首页", icon: 'fa fa-home'},
     redirect: '/home',
     children: [
       {
         path: 'home',
         name: 'home',
-        meta: { title: "主页", icon: 'fa fa-user-plus' },
+        meta: { title: "主页", icon: 'fa fa-home' },
         hidden: false,
         component: () => import("@/views/Index/Home.vue")
       }
@@ -28,28 +28,28 @@ export const routes = [
     name: "accountManage",
     component: Layout,
     hidden: false,
-    meta: { title: "账户管理", icon: 'fa fa-user-plus', roles:["admin", "shopowner", "shopguide"] },
+    meta: { title: "用户管理", icon: 'fa fa-vcard', roles:["admin", "shopowner", "shopguide"] },
     redirect: '/accountManage/accountlist',
     children: [
       {
         path: "accountlist",
         name: "accountlist",
         hidden: false,
-        meta: { title: "账户列表", icon: 'fa fa-user-plus', roles:["admin", "shopowner"]},
+        meta: { title: "用户列表", icon: 'fa fa-users', roles:["admin", "shopowner"]},
         component: AccountList //(resolve: any) => require(["@/views/AccountManage/AccountList.vue"], resolve)
       },
       {
         path: "addaccount",
         name: "addaccount",
         hidden: false,
-        meta: { title: "新增账户", icon: 'fa fa-user-plus', roles:["admin", "shopowner"] },
+        meta: { title: "新增用户", icon: 'fa fa-user-plus', roles:["admin", "shopowner"] },
         component: (resolve: any) => require(["@/views/AccountManage/AddAccount.vue"], resolve)
       },
       {
         path: "userinfo",
         name: "userinfo",
         hidden: false,
-        meta: { title: "个人中心", icon: 'fa fa-user-plus', roles:["admin", "shopowner", "shopguide"] },
+        meta: { title: "个人中心", icon: 'fa fa-user', roles:["admin", "shopowner", "shopguide"] },
         component: (resolve: any) => require(["@/views/AccountManage/UserInfo.vue"], resolve)
       }
     ]

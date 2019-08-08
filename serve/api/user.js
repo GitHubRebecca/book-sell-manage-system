@@ -183,4 +183,14 @@ router.post("/newPassword", async ctx => {
   }
 })
 
+//获取所有用户
+router.get("/getUsers", async ctx => {
+  const users = await User.find({})
+  return ctx.body = {
+    isSuccess: true,
+    msg: '查询成功',
+    result: users
+  }
+})
+
 module.exports = router.routes()

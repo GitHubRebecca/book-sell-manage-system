@@ -8,13 +8,13 @@
       </el-col>
       <el-col :xs="14" :sm="12" :md="10" :lg="8" :xl="6">
         <el-dropdown @command="userCommand" class="system-user">
-          <span class="userinfo-inner">
-            <img :src="require('@/assets/' + getUser.indentity + '.jpg')"/>
-            {{getUser.name}}
+          <span class="userinfo-inner" v-if="getUser">
+            <img :src="require('@/assets/' + getUser.indentity + '.jpg')" />
+            {{`${getUser.name} (${getIndentity()})`}}
           </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="usercenter">个人中心</el-dropdown-item>
-            <el-dropdown-item divided command="logout">注销登录</el-dropdown-item>
+            <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </el-col>
@@ -30,16 +30,36 @@ import { State, Getter, Mutation, Action } from "vuex-class";
 })
 export default class LayoutHeader extends Vue {
   @Getter("user") getUser: any;
+  @Action("clearUser") clearCurrentUser: any;
+
   userCommand(command: string): void {
     if (command == "logout") {
+      this.clearCurrentUser();
+      this.$router.push("/login");
       localStorage.removeItem("bsToken");
-      this.$router.replace("/login");
     }
 
-    if (command == "usercenter") this.$router.push("/user");
+    if (command == "usercenter") {
+      this.$router.push("/accountManage/userinfo");
+    }
   }
   created() {
-    console.log(this.getUser);
+    console.log("user:", this.getUser);
+  }
+  getIndentity(): string{
+    switch(this.getUser.indentity) {
+      case 'admin':
+        return '管理员'
+        break;
+      case 'shopowner':
+        return '店长'
+        break
+      case 'shopguide':
+        return '导购'
+        break
+      default:
+        return ''
+    }
   }
 }
 </script>

@@ -17,7 +17,8 @@ export default new Vuex.Store({
     storage: window.localStorage,
     reducer(val) {
       return {
-        user: val.user
+        user: val.user,
+        routes: val.routes
       }
     }
   })]

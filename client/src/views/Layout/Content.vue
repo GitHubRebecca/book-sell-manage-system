@@ -34,18 +34,17 @@ import { Component, Vue, Provide, Watch } from "vue-property-decorator";
 export default class Content extends Vue {
   @Provide() breadCrumbItems: any; // 面包屑的数组
 
-  @Watch("$route") handleRouteChange(to: any) {
-    this.initBreadCrumbItems(to);
+  @Watch("$route") function (to: any, from: any) {
+    console.log(to, from) //这两个参数很重要
+    this.initBreadCrumbItems(this.$route);
   }
 
   created() {
     this.initBreadCrumbItems(this.$route);
   }
-
+  //更新面包屑
   initBreadCrumbItems(router: any) {
-    // console.log(router);
-    // 根路由title
-    let breadCrumbItems: any = [{ path: "/", title: "网上书城" }];
+    let breadCrumbItems: any = [];
 
     // 遍历父级到当前子路由的页面的title和path 存储到数组里
     for (const index in router.matched) {
@@ -65,7 +64,7 @@ export default class Content extends Vue {
 <style lang="scss" scoped>
 .layout-content {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 65px);//height100%获取的是父容器的高度
   .el-main {
     padding: 0;
     .top {
@@ -86,7 +85,7 @@ export default class Content extends Vue {
     }
     .content {
       padding: 10px;
-      height: calc(100% - 54px);
+      height: calc(100% - 55px);
       box-sizing: border-box;
     }
   }

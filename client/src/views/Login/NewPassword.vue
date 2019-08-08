@@ -78,7 +78,7 @@ export default class NewPassword extends Vue {
   };
 
   //自定义验证器
-  verifyPasswordAgreement(rule, value, callback): void {
+  verifyPasswordAgreement(rule: any, value: any, callback: any): void {
     if (
       rule.fullField == "password1" &&
       this.ruleForm.password2 !== "" &&

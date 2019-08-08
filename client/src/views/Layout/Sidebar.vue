@@ -1,13 +1,14 @@
 <template>
-  <el-scrollbar class="el-scrollbar">
-    <el-menu class="el-menu-slide" :default-active="$router.currentRoute.path" router>
+  <div class="el-scrollbar">
+    <!-- 使用router 开启index跳转路径模式 -->
+    <el-menu class="el-menu-slide" :default-active="$route.path" router> <!-- 也可以使用$router.currentRoute.path-->
       <template
         v-for="item in getRouters"
         v-if="!item.hidden&&item.children&&item.children.length>0"
       >
         <el-menu-item
           v-if="item.children.length==1"
-          :index="item.children[0].path"
+          :index="(item.path == '/' ? '/' : item.path + '/') + item.children[0].path"
           :key="item.name"
         >
           <i v-if="item.children[0].meta.icon" :class="item.children[0].meta.icon"></i>
@@ -19,14 +20,14 @@
             <i v-if="item.meta.icon" :class="item.meta.icon"></i>
             <span v-if="item.meta&&item.meta.title" slot="title">{{item.meta.title}}</span>
           </template>
-          <el-menu-item v-for="child in item.children" :index="item.path + '/' + child.path" :key="child.name">
+          <el-menu-item v-for="child in item.children" :index="(item.path == '/' ? '/' : item.path + '/') + child.path" :key="child.name">
             <i v-if="child.meta.icon" :class="child.meta.icon"></i>
             <span v-if="child.meta&&child.meta.title" slot="title">{{child.meta.title}}</span>
           </el-menu-item>
         </el-submenu>
       </template>
     </el-menu>
-  </el-scrollbar>
+  </div>
 </template>
 
 <script lang="ts">
@@ -36,11 +37,12 @@ import { State, Getter, Mutation, Action } from "vuex-class";
   components: {}
 })
 export default class Sidebar extends Vue {
-  @Getter("routers") getRouters: any;
+  @Getter("routes") getRouters: any;
 
   created() {
-    console.log(this.getRouters);
-    console.log(this.$router);
+    console.log('accessRoute:', this.getRouters);
+    console.log("router:", this.$router);
+    console.log("route: ", this.$route);
   }
 }
 </script>

@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon serve.js"
+    "serve": "nodemon serve.js",
+    "client": "npm run serve --prefix ../client",
+    "dev": "concurrently \"npm run serve\" \"npm run client\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^3.0.6",
     "bluebird": "^3.5.5",
+    "concurrently": "^4.1.1",
     "gravatar": "^1.8.0",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.7.0",

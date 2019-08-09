@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Layout from '@/views/Layout/Index.vue'
-import AccountList from "@/views/AccountManage/AccountList.vue"
 
 Vue.use(Router)
 
@@ -11,7 +10,7 @@ export const routes = [
     name: 'layout',
     component: Layout,
     hidden: false,
-    meta: { title: "首页", icon: 'fa fa-home'},
+    meta: { title: "首页", icon: 'fa fa-home' },
     redirect: '/home',
     children: [
       {
@@ -28,29 +27,46 @@ export const routes = [
     name: "accountManage",
     component: Layout,
     hidden: false,
-    meta: { title: "用户管理", icon: 'fa fa-vcard', roles:["admin", "shopowner", "shopguide"] },
+    meta: { title: "用户管理", icon: 'fa fa-vcard', roles: ["admin", "shopowner", "shopguide"] },
     redirect: '/accountManage/accountlist',
     children: [
       {
         path: "accountlist",
         name: "accountlist",
         hidden: false,
-        meta: { title: "用户列表", icon: 'fa fa-users', roles:["admin", "shopowner"]},
-        component: AccountList //(resolve: any) => require(["@/views/AccountManage/AccountList.vue"], resolve)
-      },
-      {
-        path: "addaccount",
-        name: "addaccount",
-        hidden: false,
-        meta: { title: "新增用户", icon: 'fa fa-user-plus', roles:["admin", "shopowner"] },
-        component: (resolve: any) => require(["@/views/AccountManage/AddAccount.vue"], resolve)
+        meta: { title: "用户列表", icon: 'fa fa-users', roles: ["admin", "shopowner"] },
+        component: (resolve: any) => require(["@/views/AccountManage/AccountList.vue"], resolve)
       },
       {
         path: "userinfo",
         name: "userinfo",
         hidden: false,
-        meta: { title: "个人中心", icon: 'fa fa-user', roles:["admin", "shopowner", "shopguide"] },
+        meta: { title: "个人中心", icon: 'fa fa-user', roles: ["admin", "shopowner", "shopguide"] },
         component: (resolve: any) => require(["@/views/AccountManage/UserInfo.vue"], resolve)
+      }
+    ]
+  },
+  {
+    path: "/bookManage",
+    name: "bookManage",
+    component: Layout,
+    hidden: false,
+    meta: { title: "书本管理", icon: 'fa fa-book', roles: ["admin", "shopowner"] },
+    redirect: '/bookManage/booklist',
+    children: [
+      {
+        path: "booklist",
+        name: "booklist",
+        hidden: false,
+        meta: { title: "书本列表", icon: 'fa fa-file-o', roles: ["admin", "shopowner", "shopguide"] },
+        component: (resolve: any) => require(["@/views/BookManage/BookList.vue"], resolve)
+      },
+      {
+        path: "addbook",
+        name: "addbook",
+        hidden: false,
+        meta: { title: "新增编辑书本", icon: 'fa fa-file', roles: ["admin", "shopowner"] },
+        component: (resolve: any) => require(["@/views/BookManage/AddBook.vue"], resolve)
       }
     ]
   },

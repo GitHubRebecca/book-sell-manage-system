@@ -88,7 +88,7 @@ export default class UserInfo extends Vue {
           });
         }
       })
-      .catch(err => {
+      .catch((err: any) => {
         console.log(err);
         this.loading = false;
       });

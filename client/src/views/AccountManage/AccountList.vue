@@ -1,7 +1,20 @@
 <template>
   <div class="account-data">
     <div class="add-box">
-      <el-button @click="addAccount" type="primary">新增账户</el-button>
+      <el-row type="flex" justify="space-between">
+        <el-col :span="5">
+          <el-input @clear="getData" v-model.trim="searchKey" type="text" clearable placeholder="用户名" @keyup.native.enter="handlSearch" size="small">
+            <i
+              class="el-icon-search el-input__icon"
+              slot="suffix"
+              @click="handlSearch">
+            </i>
+          </el-input>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button @click="addAccount" type="primary" size="small">新增用户</el-button>
+        </el-col>
+      </el-row>
     </div>
     <el-table
       :data="tableData"
@@ -9,11 +22,11 @@
       style="width:100%"
       v-loading="loading"
       element-loading-text="拼命加载中..."
+      empty-text="暂无数据"
     >
       <el-table-column label="用户名" width="180">
         <template slot-scope="scope">
-          <el-input v-model="scope.row.name" v-if="scope.row.edit"></el-input>
-          <span v-else>{{scope.row.name}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column label="角色" width="180">
@@ -21,25 +34,31 @@
           <el-select
             @change="selectChange(scope.row)"
             v-if="scope.row.edit"
-            v-model="scope.row.role"
+            v-model="scope.row.indentity"
           >
             <el-option
               v-for="option in options"
               :label="option.role"
-              :value="option.role"
-              :key="option.key"
+              :value="option.value"
+              :key="option.value"
             ></el-option>
           </el-select>
-          <span v-else>{{getUserRole(scope.row.indentity)}}</span>
+          <span v-else>{{scope.row.indentity}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="email" label="邮箱"></el-table-column>
-      <el-table-column label="操作" width="180">
+      <el-table-column prop="status" label="状态" width="200">
+        <template slot-scope="scope">
+          {{scope.row.status == 'enable' ? '正常' : '禁用'}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="email" label="邮箱" min-width="200"></el-table-column>
+      <el-table-column label="操作" width="280">
         <template slot-scope="scope">
           <el-button
             @click="handleEdit(scope.$index,scope.row)"
             v-if="!scope.row.edit"
             size="mini"
+            type="primary"
           >编辑</el-button>
           <el-button
             @click="handleSave(scope.$index,scope.row)"
@@ -48,10 +67,23 @@
             size="mini"
           >完成</el-button>
 
+          <el-button @click="handleStatus(scope.$index,scope.row)" size="mini" :type="scope.row.status == 'enable' ? 'warning' : 'success'">{{scope.row.status ==  'enable' ? '禁用' : '启用'}}</el-button>
           <el-button @click="handleDelete(scope.$index,scope.row)" size="mini" type="danger">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
+    <section class="pagination-wrapper">
+      <el-pagination
+        background
+        layout="sizes, prev, pager, next, jumper"
+        :page-sizes="[5,10]"
+        :page-size="pageSize"
+        :current-page="currentPage"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :total="total">
+      </el-pagination>
+    </section>
     <AddAccount
       @update="getData"
       @closeDialog="closeDialog"
@@ -63,6 +95,7 @@
 
 <script lang="ts">
 import { Component, Vue, Provide } from "vue-property-decorator";
+import {Getter} from 'vuex-class'
 import AddAccount from "./AddAccount.vue";
 import { getUserRole } from "../../utils/role";
 @Component({
@@ -71,30 +104,31 @@ import { getUserRole } from "../../utils/role";
 export default class AccountData extends Vue {
   @Provide() tableData: any = [];
 
+  @Provide() total: number = 0
+  @Provide() pageSize: number = 5
+  @Provide() currentPage: number = 1
+
   @Provide() loading: boolean = false;
 
-  @Provide() dialogVisible: Boolean = false;
+  @Provide() dialogVisible: boolean = false;
+
+  @Provide() searchKey: string = ''
 
   // select数据
-  @Provide() options: any = [
+  @Provide() options: Array<any> = [
     {
-      key: "admin",
-      role: "管理员",
-      des: "Super Administrator. Have access to view all pages."
+      role: "店长",
+      value: "shopowner"
     },
     {
-      key: "editor",
-      role: "客服",
-      des: "Normal Editor. Can see all pages except permission page"
-    },
-    {
-      key: "visitor",
-      role: "游客",
-      des: "Just a visitor. Can only see the home page and the document page"
+      role: "导购",
+      value: "shopguide"
     }
   ];
 
   getUserRole: any = getUserRole;
+
+  @Getter("user") getUser: any
 
   addAccount() {
     this.dialogVisible = true;
@@ -102,6 +136,21 @@ export default class AccountData extends Vue {
 
   closeDialog() {
     this.dialogVisible = false;
+  }
+
+  handleSizeChange(val: number) {
+    this.pageSize = val
+    this.getData()
+  }
+
+  handleCurrentChange(val: number) {
+    this.currentPage = val
+    this.getData()
+  }
+
+  handlSearch(val: any){
+    if (this.searchKey == '') return
+    this.getData()
   }
 
   created() {
@@ -116,14 +165,41 @@ export default class AccountData extends Vue {
   handleDelete(index: number, row: any): void {
     // 删除
     (this as any).$axios
-      .delete(`/api/users/deleteUser/${row._id}`)
+      .delete(`/api/user/deleteUser/${row._id}`)
       .then((res: any) => {
-        this.$message({
-          message: res.data.msg,
-          type: "success"
-        });
+        if(res.data.isSuccess){
+          this.$message({
+            message: res.data.msg,
+            type: "success"
+          });
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error"
+          });
+        }
 
         this.tableData.splice(index, 1);
+      });
+  }
+
+  handleStatus(index: number, row: any): void {
+    const status = row.status == 'enable' ? 'disable' : 'enable';
+    (this as any).$axios
+      .put(`/api/user/updateStatus/${row._id}`, {status: status})
+      .then((res: any) => {
+        if(res.data.isSuccess) {
+          this.$message({
+            message: res.data.msg,
+            type: "success"
+          });
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error"
+          });
+        }
+        this.getData()
       });
   }
 
@@ -131,36 +207,42 @@ export default class AccountData extends Vue {
     // 完成
     row.edit = false;
     (this as any).$axios
-      .post(`/api/users/editUser/${row._id}`, row)
+      .put(`/api/user/updateRole/${row._id}`, {indentity: row.indentity})
       .then((res: any) => {
-        this.$message({
-          message: res.data.msg,
-          type: "success"
-        });
+        if(res.data.isSuccess) {
+          this.$message({
+            message: res.data.msg,
+            type: "success"
+          });
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error"
+          });
+        }
+        this.getData()
       });
   }
 
   selectChange(item: any) {
-    this.options.map((option: any) => {
-      if (option.role == item.role) {
-        item.key = option.key;
-        item.des = option.des;
-      }
-    });
+    console.log(item)
   }
 
   getData() {
     this.loading = true;
+    this.tableData = [];
     (this as any)
-      .$axios("/api/user/getUsers")
+      .$axios.get(`/api/user/getUsers?searchKey=${this.searchKey}&pageSize=${this.pageSize}&currentPage=${this.currentPage}&id=${this.getUser.id}`)
       .then((res: any) => {
         this.loading = false;
         if (res.data.isSuccess) {
           // 设置编辑状态
-          res.data.result.forEach((item: any) => {
+          res.data.result.users.forEach((item: any) => {
             item.edit = false;
+            item.indentity = this.getUserRole(item.indentity)
           });
-          this.tableData = res.data.result;
+          this.tableData = res.data.result.users;
+          this.total = res.data.result.count
         } else {
           this.$message({
             type: "error",
@@ -168,7 +250,7 @@ export default class AccountData extends Vue {
           });
         }
       })
-      .catch(err => {
+      .catch((err: any) => {
         console.log(err);
         this.loading = false;
       });
@@ -182,6 +264,11 @@ export default class AccountData extends Vue {
   overflow: auto;
   .add-box {
     margin-bottom: 10px;
+  }
+
+  .pagination-wrapper {
+    padding: 30px 0px;
+    text-align: right;
   }
 }
 </style>

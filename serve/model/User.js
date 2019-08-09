@@ -26,9 +26,18 @@ const Userschema = new Schema({
     required: true,
     trim: true
   },
+  status: {
+    type: String,
+    required: true,
+    default: true
+  },
   created: {
     type: Date,
     default: Date.now
+  },
+  createUser: {
+    type: Schema.Types.ObjectId,
+    ref: "user"
   }
 })
 

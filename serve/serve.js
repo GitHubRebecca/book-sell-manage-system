@@ -4,10 +4,11 @@ const router = new KoaRouter()
 const bodyParser = require('koa-bodyparser')
 const mongoose = require("mongoose")
 const user = require("./api/user")
+const book = require("./api/book")
 
 const app = new koa()
 
-mongoose.connect("mongodb://localhost:27017/bookstore", { useNewUrlParser: true }).then(res => {
+mongoose.connect("mongodb://localhost:27017/bookstore", { useNewUrlParser: true, useFindAndModify: false }).then(res => {
   console.log("mongodb connect success")
 }).catch(err => {
   console.log(err, "mongodb connect error")
@@ -15,6 +16,7 @@ mongoose.connect("mongodb://localhost:27017/bookstore", { useNewUrlParser: true 
 
 //注册路由
 router.use("/api/user", user)
+router.use("/api/book", book)
 
 
 app.use(bodyParser())//这样就能拿到post提交的参数 这个必须在上面

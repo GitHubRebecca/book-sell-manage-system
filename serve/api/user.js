@@ -10,7 +10,7 @@ bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 const redisClient = redis.createClient(6379, "localhost")
 const User = require("../model/User")
-const {getRandomCode} = require("../utils/randomCode")
+const { getRandomCode } = require("../utils/randomCode")
 
 //登录
 router.post("/login", async ctx => {
@@ -28,7 +28,8 @@ router.post("/login", async ctx => {
       name: user.name,
       email: user.email,
       avatar: user.avatar,
-      indentity: user.indentity
+      indentity: user.indentity,
+      id: user._id
     }
     const token = await jwt.sign(rules, 'secret', { expiresIn: ctx.request.body.autoLogin ? 3600 * 24 * 7 : 3600 })
     return ctx.body = {
@@ -47,12 +48,12 @@ router.post("/login", async ctx => {
 
 //注册
 router.post("/register", async ctx => {
-  const user = User.findOne({ name: ctx.request.body.name })
+  const user = await User.findOne({ name: ctx.request.body.name })
   if (user) {
     return ctx.body = {
       isSuccess: false,
       msg: "该用户已经注册",
-      result: null
+      result: user
     }
   }
   const password = await bcrypt.hash(ctx.request.body.password, 10);
@@ -63,23 +64,16 @@ router.post("/register", async ctx => {
     password,
     email: ctx.request.body.email,
     avatar,
-    indentity: ctx.request.body.indentity
+    indentity: ctx.request.body.indentity,
+    createUser: ctx.request.body.createUser
   })
 
-  newUser.save().then(user => {
-    return ctx.body = {
-      isSuccess: true,
-      msg: '注册成功',
-      result: user
-    }
-  }).catch(err => {
-    console.log(err)
-    return ctx.body = {
-      isSuccess: false,
-      msg: '注册失败',
-      result: null
-    }
-  })
+  await newUser.save()
+  return ctx.body = {
+    isSuccess: true,
+    msg: '注册成功',
+    result: user
+  }
 })
 
 //发送验证码 jfnzwbdbeuytffad
@@ -140,14 +134,14 @@ router.post("/sendCode", async ctx => {
 //验证验证码
 router.post("/verifyCode", async ctx => {
   const code = await redisClient.getAsync(ctx.request.body.name)//安装了bluebird就可以使用redis的异步方法了
-  if(!code) {
+  if (!code) {
     return ctx.body = {
       isSuccess: false,
       msg: "验证码已过期",
       result: null
     }
   }
-  if(code == ctx.request.body.code){
+  if (code == ctx.request.body.code) {
     return ctx.body = {
       isSuccess: true,
       msg: "验证成功",
@@ -185,11 +179,46 @@ router.post("/newPassword", async ctx => {
 
 //获取所有用户
 router.get("/getUsers", async ctx => {
-  const users = await User.find({})
+  let query = {createUser: ctx.request.query.id}//获取是自己创建的用户
+  if (ctx.request.query.searchKey) {
+    query.name = ctx.request.query.searchKey
+  }
+  const users = await User.find(query).skip(Number(ctx.request.query.currentPage-1)*Number(ctx.request.query.pageSize)).limit(Number(ctx.request.query.pageSize))
+  const count = await User.find(query).count()
   return ctx.body = {
     isSuccess: true,
     msg: '查询成功',
-    result: users
+    result: {users, count}
+  }
+})
+
+//修改角色
+router.put("/updateRole/:id", async ctx => {
+  const user = await User.findOneAndUpdate({ _id: ctx.params.id }, { $set: { 'indentity': ctx.request.body.indentity } }, { new: true })
+  return ctx.body = {
+    isSuccess: true,
+    msg: "修改成功",
+    result: user
+  }
+})
+
+//修改状态
+router.put("/updateStatus/:id", async ctx => {
+  const user = await User.findOneAndUpdate({ _id: ctx.params.id }, { $set: { 'status': ctx.request.body.status } }, { new: true })
+  return ctx.body = {
+    isSuccess: true,
+    msg: "修改成功",
+    result: user
+  }
+})
+
+//删除用户
+router.delete("/deleteUser/:id", async ctx => {
+  const user = await User.findOneAndRemove({ _id: ctx.params.id })
+  return ctx.body = {
+    isSuccess: true,
+    msg: "删除成功",
+    result: user
   }
 })
 

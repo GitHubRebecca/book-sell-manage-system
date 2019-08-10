@@ -68,7 +68,15 @@
           >完成</el-button>
 
           <el-button @click="handleStatus(scope.$index,scope.row)" size="mini" :type="scope.row.status == 'enable' ? 'warning' : 'success'">{{scope.row.status ==  'enable' ? '禁用' : '启用'}}</el-button>
-          <el-button @click="handleDelete(scope.$index,scope.row)" size="mini" type="danger">删除</el-button>
+
+          <el-popover v-model="scope.row.showDeletePopover" placement="left">
+            <div style="text-align:center;">
+              <p style="line-height:40px;">该用户您确定删除吗？</p>
+              <el-button size="mini" @click="scope.row.showDeletePopover=false">取消</el-button>
+              <el-button size="mini" type="danger" @click="handleDelete(scope.$index,scope.row)">确定</el-button>
+            </div>
+            <el-button style="margin-left:10px;" slot="reference" size="mini" type="danger">删除</el-button>
+          </el-popover>
         </template>
       </el-table-column>
     </el-table>
@@ -240,6 +248,7 @@ export default class AccountData extends Vue {
           res.data.result.users.forEach((item: any) => {
             item.edit = false;
             item.indentity = this.getUserRole(item.indentity)
+            item.showDeletePopover = false
           });
           this.tableData = res.data.result.users;
           this.total = res.data.result.count

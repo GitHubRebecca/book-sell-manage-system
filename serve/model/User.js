@@ -29,7 +29,7 @@ const Userschema = new Schema({
   status: {
     type: String,
     required: true,
-    default: true
+    default: 'enable'
   },
   created: {
     type: Date,

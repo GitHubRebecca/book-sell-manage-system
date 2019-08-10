@@ -2,6 +2,19 @@ const KoaRouter = require('koa-router')
 const router = new KoaRouter()
 const Book = require("../model/Book")
 
+//获取所有书本 不分页
+router.get("/getAllBooks", async ctx => {
+
+  const books = await Book.find({})
+
+  return ctx.body = {
+    isSuccess: true,
+    msg: "查询成功",
+    result: books
+  }
+})
+
+//分页获取书本
 router.get("/getBooks", async ctx => {
   let query = {}
   if (ctx.request.query.searchKey) {
@@ -9,7 +22,7 @@ router.get("/getBooks", async ctx => {
   }
 
   const books = await Book.find(query).skip(Number((ctx.request.query.currentPage - 1) * Number(ctx.request.query.pageSize))).limit(Number(ctx.request.query.pageSize))
-  const count = await Book.find(query).count()
+  const count = await Book.find(query).countDocuments()
 
   return ctx.body = {
     isSuccess: true,

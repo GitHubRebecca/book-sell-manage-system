@@ -22,6 +22,13 @@ router.post("/login", async ctx => {
       result: null
     }
   }
+  if(user && user.status == 'disable') {
+    return ctx.response.body = {
+      isSuccess: false,
+      msg: '该用户已被禁止登陆',
+      result: null
+    }
+  }
   const isMatch = await bcrypt.compare(ctx.request.body.pwd, user.password)
   if (isMatch) {
     const rules = {
@@ -184,7 +191,7 @@ router.get("/getUsers", async ctx => {
     query.name = ctx.request.query.searchKey
   }
   const users = await User.find(query).skip(Number(ctx.request.query.currentPage-1)*Number(ctx.request.query.pageSize)).limit(Number(ctx.request.query.pageSize))
-  const count = await User.find(query).count()
+  const count = await User.find(query).countDocuments()
   return ctx.body = {
     isSuccess: true,
     msg: '查询成功',

@@ -5,6 +5,7 @@ const bodyParser = require('koa-bodyparser')
 const mongoose = require("mongoose")
 const user = require("./api/user")
 const book = require("./api/book")
+const order = require("./api/order")
 
 const app = new koa()
 
@@ -17,6 +18,7 @@ mongoose.connect("mongodb://localhost:27017/bookstore", { useNewUrlParser: true,
 //注册路由
 router.use("/api/user", user)
 router.use("/api/book", book)
+router.use("/api/order", order)
 
 
 app.use(bodyParser())//这样就能拿到post提交的参数 这个必须在上面

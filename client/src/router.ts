@@ -51,7 +51,7 @@ export const routes = [
     name: "bookManage",
     component: Layout,
     hidden: false,
-    meta: { title: "书本管理", icon: 'fa fa-book', roles: ["admin", "shopowner"] },
+    meta: { title: "书本管理", icon: 'fa fa-book', roles: ["admin", "shopowner", "shopguide"] },
     redirect: '/bookManage/booklist',
     children: [
       {
@@ -67,6 +67,30 @@ export const routes = [
         hidden: false,
         meta: { title: "新增编辑书本", icon: 'fa fa-file', roles: ["admin", "shopowner"] },
         component: (resolve: any) => require(["@/views/BookManage/AddBook.vue"], resolve)
+      }
+    ]
+  },
+  {
+    path: "/orderManage",
+    name: "orderManage",
+    component: Layout,
+    hidden: false,
+    meta: { title: "订单管理", icon: 'fa fa-microchip', roles: ["admin", "shopowner", "shopguide"] },
+    redirect: '/orderManage/orderlist',
+    children: [
+      {
+        path: "orderlist",
+        name: "orderlist",
+        hidden: false,
+        meta: { title: "订单列表", icon: 'fa fa-file-o', roles: ["admin", "shopowner", "shopguide"] },
+        component: (resolve: any) => require(["@/views/OrderManage/OrderList.vue"], resolve)
+      },
+      {
+        path: "addorder",
+        name: "addorder",
+        hidden: false,
+        meta: { title: "新增编辑订单", icon: 'fa fa-file', roles: ["admin", "shopowner", "shopguide"] },
+        component: (resolve: any) => require(["@/views/OrderManage/AddOrder.vue"], resolve)
       }
     ]
   },

@@ -95,6 +95,23 @@ export const routes = [
     ]
   },
   {
+    path: "/moneyManage",
+    name: "moneyManage",
+    component: Layout,
+    hidden: false,
+    meta: { title: "资金管理", icon: 'fa fa-microchip', roles: ["admin", "shopowner", "shopguide"] },
+    redirect: '/moneyManage/moneylist',
+    children: [
+      {
+        path: "moneylist",
+        name: "moneylist",
+        hidden: false,
+        meta: { title: "资金列表", icon: 'fa fa-file-o', roles: ["admin", "shopowner", "shopguide"] },
+        component: (resolve: any) => require(["@/views/MoneyManage/MoneyList.vue"], resolve)
+      }
+    ]
+  },
+  {
     path: '/login',
     name: "login",
     hidden: true,

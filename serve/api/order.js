@@ -3,11 +3,28 @@ const router = new KoaRouter()
 const Order = require("../model/Order")
 const Book = require("../model/Book")
 const User = require("../model/User")
+const mongoose = require("mongoose")
 
 router.get("/getOrders", async ctx => {
-  let query = {}
+  let query = {user: {$in: [ctx.request.query.id]}} //获取自己的订单 还有就是自己创建的用户的订单
   if (ctx.request.query.searchKey) {
-    query['$or'] = [{bookName: ctx.request.query.searchKey}, {userName: ctx.request.query.searchKey}]
+    query['$or'] = [
+      {bookName: ctx.request.query.searchKey},
+      {userName: ctx.request.query.searchKey}
+    ]
+  }
+  if(ctx.request.query.searchDate && ctx.request.query.searchDate != 'null') {
+    query.saleDate = {
+      $gte: Number(ctx.request.query.searchDate.split(",")[0]),
+      $lte: Number(ctx.request.query.searchDate.split(",")[1])
+    }
+    console.log(query)
+  }
+  const users = await User.find({createUser: ctx.request.query.id})
+  if(users) {
+    users.forEach(user => {
+      query['user']['$in'].push(user._id)
+    })
   }
 
   const orders = await Order.find(query).populate("book", ["percentage"]).skip(Number((ctx.request.query.currentPage - 1) * Number(ctx.request.query.pageSize))).limit(Number(ctx.request.query.pageSize))
@@ -66,6 +83,45 @@ router.delete("/deleteOrder/:id", async ctx => {
     isSuccess: true,
     msg: "删除成功",
     result: order
+  }
+})
+
+router.get("/getMoneys", async ctx => {
+  let query = {'user': {'$in': [mongoose.Types.ObjectId(ctx.request.query.id)]}} //这里需要转换成ObjectId
+  if (ctx.request.query.searchKey) {
+    query.userName = ctx.request.query.searchKey
+  }
+
+  if(ctx.request.query.searchDate && ctx.request.query.searchDate != 'null') {
+    query.saleDate = {
+      $gte: Number(ctx.request.query.searchDate.split(",")[0]),
+      $lte: Number(ctx.request.query.searchDate.split(",")[1])
+    }
+    console.log(query)
+  }
+
+  const users = await User.find({createUser: ctx.request.query.id})
+  if(users) {
+    users.forEach(user => {
+      query['user']['$in'].push(user._id)
+    })
+  }
+
+  const group = {
+    $group: {
+      _id: '$user',
+      sellIncome: {$sum: "$sellIncome"},
+      userName: {$first: '$userName'}
+    }
+  }
+
+  const moneys = await Order.aggregate([{$match: query}, group]).skip(Number((ctx.request.query.currentPage - 1) * Number(ctx.request.query.pageSize))).limit(Number(ctx.request.query.pageSize))
+  const count = await Order.aggregate([{$match: query}, group])
+
+  return ctx.body = {
+    isSuccess: true,
+    msg: "查询成功",
+    result: { moneys, count: count.length }
   }
 })
 

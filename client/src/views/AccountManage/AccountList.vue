@@ -158,6 +158,7 @@ export default class AccountData extends Vue {
 
   handlSearch(val: any){
     if (this.searchKey == '') return
+    this.currentPage = 1
     this.getData()
   }
 

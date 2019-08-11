@@ -1,13 +1,24 @@
 <template>
   <div class="table-data">
     <div class="search-box">
-      <el-input size="small" v-model="searchKey" placeholder="请输入课本名称或用户名检索"></el-input>
+      <el-input size="small" v-model="searchKey" placeholder="请输入课本名称或用户名检索" @keyup.enter.native="handleSearch"></el-input>
+      <el-date-picker
+        style="margin-right:10px;"
+        v-model="searchDate"
+        size="small"
+        type="datetimerange"
+        value-format="timestamp"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期">
+      </el-date-picker>
       <el-button size="small" type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+      <el-button size="small" type="danger" icon="el-icon-delete" @click="handleClear">清除</el-button>
     </div>
-    <el-table :data="tableData" border style="width:100%" :height="tHeight" class="table-box">
+    <el-table :data="tableData" border style="width:100%" :height="tHeight" class="table-box" v-loading="loading" element-loading-text="努力加载中...">
       <el-table-column type="index" label="序号" width="60"></el-table-column>
       <el-table-column prop="bookName" label="课本名称" min-width="300"></el-table-column>
-      <el-table-column width="120" label="用户名" prop="userName"></el-table-column>
+      <el-table-column width="120" label="开单用户名" prop="userName"></el-table-column>
       <el-table-column width="100" label="出售数量" prop="saleCount"></el-table-column>
       <el-table-column width="220" label="出售时间" prop="showSaleDate"></el-table-column>
       <el-table-column width="160" label="书本卖价" prop="bookSellPrice"></el-table-column>
@@ -52,11 +63,13 @@ export default class OrderList extends Vue {
   @Getter("user") getUser: any;
 
   @Provide() searchKey: string = ""; // 搜索框
+  @Provide() searchDate: any[] = []
   @Provide() tHeight: number = document.body.offsetHeight - 270;
   @Provide() tableData: any = []; // 表格数据
   @Provide() pageSize: number = 5; // 请求数据的个数 默认5
   @Provide() currentPage: number = 1; // 当前page
   @Provide() total: number = 0; // 总数据条数
+  @Provide() loading: boolean = false
 
   handleEdit(index: number, row: any) {
     row.bookId = row.book._id
@@ -100,9 +113,11 @@ export default class OrderList extends Vue {
   }
 
   loadData() {
+    this.loading = true;
     (this as any)
-      .$axios.get(`/api/order/getOrders?searchKey=${this.searchKey}&pageSize=${this.pageSize}&currentPage=${this.currentPage}`)
+      .$axios.get(`/api/order/getOrders?searchKey=${this.searchKey}&pageSize=${this.pageSize}&currentPage=${this.currentPage}&id=${this.getUser.id}&searchDate=${this.searchDate}`)
       .then((res: any) => {
+        this.loading = false
         res.data.result.orders.forEach((order: any) => { //对象类型的可以更改
           order.showDeletePopover = false
           order.showSaleDate = new Date(order.saleDate).toLocaleString();
@@ -124,7 +139,13 @@ export default class OrderList extends Vue {
 
   handleSearch(): void {
     // 点击搜索
-    if(!this.searchKey) return
+    // if(!this.searchKey) return
+    this.currentPage = 1;
+    this.loadData();
+  }
+
+  handleClear(): void {
+    this.searchKey = ''
     this.currentPage = 1;
     this.loadData();
   }

@@ -1,32 +1,24 @@
 <template>
   <div class="table-data">
     <div class="search-box">
-      <el-input size="small" v-model="searchKey" placeholder="请输入课本名称检索" @keyup.enter.native="handleSearch"></el-input>
+      <el-input size="small" v-model="searchKey" placeholder="请输入用户名检索" @keyup.enter.native="handleSearch"></el-input>
+      <el-date-picker
+        style="margin-right:10px;"
+        v-model="searchDate"
+        size="small"
+        type="datetimerange"
+        value-format="timestamp"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期">
+      </el-date-picker>
       <el-button size="small" type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
       <el-button size="small" type="danger" icon="el-icon-delete" @click="handleClear">清除</el-button>
     </div>
     <el-table :data="tableData" border style="width:100%" :height="tHeight" class="table-box" v-loading="loading" element-loading-text="努力加载中...">
       <el-table-column type="index" label="序号" width="60"></el-table-column>
-      <el-table-column label="课本名称" prop="name"></el-table-column>
-      <el-table-column width="120" label="课本分类" prop="type"></el-table-column>
-      <el-table-column width="120" label="库存" prop="stock"></el-table-column>
-      <el-table-column v-if="getUser.indentity != 'shopguide'" width="120" label="书本进价" prop="incomePrice"></el-table-column>
-      <el-table-column width="160" label="书本卖价" prop="sellPrice"></el-table-column>
-      <el-table-column width="160" label="提成比例" prop="percentage"></el-table-column>
-      <el-table-column v-if="getUser.indentity != 'shopguide'" label="操作" width="160" >
-        <template slot-scope="scope">
-          <el-button @click="handleEdit(scope.$index,scope.row)" size="mini">编辑</el-button>
-          <!-- delete  -->
-          <el-popover placement="left" trigger="click" v-model="scope.row.showDeletePopover">
-            <div style="text-align: center;">
-              <p style="line-height: 40px;">这本书您确定删除吗？</p>
-              <el-button size="mini" @click="scope.row.showDeletePopover=false">取消</el-button>
-              <el-button type="primary" size="mini" @click="handleDelete(scope.$index,scope.row)">确定</el-button>
-            </div>
-            <el-button slot="reference" size="mini" type="danger" style="margin-left:10px;">删除</el-button>
-          </el-popover>
-        </template>
-      </el-table-column>
+      <el-table-column label="用户名" prop="userName" min-width="220"></el-table-column>
+      <el-table-column width="220" label="总提成" prop="sellIncome"></el-table-column>
     </el-table>
     <div class="pages" ref="page-box">
       <el-pagination
@@ -48,10 +40,11 @@ import { State, Getter, Mutation, Action } from "vuex-class";
 @Component({
   components: {}
 })
-export default class BookList extends Vue {
+export default class MoneyList extends Vue {
   @Getter("user") getUser: any;
 
   @Provide() searchKey: string = ""; // 搜索框
+  @Provide() searchDate: Array<any> = []; // 时间搜索
   @Provide() tHeight: number = document.body.offsetHeight - 270;
   @Provide() tableData: any = []; // 表格数据
   @Provide() pageSize: number = 5; // 请求数据的个数 默认5
@@ -102,13 +95,14 @@ export default class BookList extends Vue {
   loadData() {
     this.loading = true;
     (this as any)
-      .$axios.get(`/api/book/getBooks?searchKey=${this.searchKey}&pageSize=${this.pageSize}&currentPage=${this.currentPage}`)
+      .$axios.get(`/api/order/getMoneys?searchKey=${this.searchKey}&pageSize=${this.pageSize}&currentPage=${this.currentPage}&id=${this.getUser.id}&searchDate=${this.searchDate}`)
       .then((res: any) => {
         this.loading = false
-        res.data.result.books.forEach((book: any) => { //对象类型的可以更改
-          book.showDeletePopover = false
+        res.data.result.moneys.forEach((money: any) => { //对象类型的可以更改
+          money.showDeletePopover = false
+          money.saleDate = new Date(money.saleDate).toLocaleString()
         })
-        this.tableData = res.data.result.books
+        this.tableData = res.data.result.moneys
         this.total = res.data.result.count;
       });
   }

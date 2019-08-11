@@ -1,7 +1,7 @@
 module.exports = {
   // 反向代理
   devServer: {
-    open: true,
+    open: false,
     host: 'localhost',
     port: 8080,
     https: false,

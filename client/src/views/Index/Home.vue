@@ -1,5 +1,7 @@
 <template>
-  <div>Home</div>
+  <div class="home-wrapper">
+    <img src="../../assets/bg.jpg" alt="home">
+  </div>
 </template>
 
 <script lang="ts">
@@ -13,4 +15,11 @@ export default class Home extends Vue {}
 </script>
 
 <style lang="scss" scoped>
+  .home-wrapper {
+    height: 100%;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
 </style>

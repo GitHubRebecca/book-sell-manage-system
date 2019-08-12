@@ -6,22 +6,21 @@ const User = require("../model/User")
 const mongoose = require("mongoose")
 
 router.get("/getOrders", async ctx => {
-  let query = {user: {$in: [ctx.request.query.id]}} //获取自己的订单 还有就是自己创建的用户的订单
+  let query = { user: { $in: [ctx.request.query.id] } } //获取自己的订单 还有就是自己创建的用户的订单
   if (ctx.request.query.searchKey) {
     query['$or'] = [
-      {bookName: ctx.request.query.searchKey},
-      {userName: ctx.request.query.searchKey}
+      { bookName: ctx.request.query.searchKey },
+      { userName: ctx.request.query.searchKey }
     ]
   }
-  if(ctx.request.query.searchDate && ctx.request.query.searchDate != 'null') {
+  if (ctx.request.query.searchDate && ctx.request.query.searchDate != 'null') {
     query.saleDate = {
       $gte: Number(ctx.request.query.searchDate.split(",")[0]),
       $lte: Number(ctx.request.query.searchDate.split(",")[1])
     }
-    console.log(query)
   }
-  const users = await User.find({createUser: ctx.request.query.id})
-  if(users) {
+  const users = await User.find({ createUser: ctx.request.query.id })
+  if (users) {
     users.forEach(user => {
       query['user']['$in'].push(user._id)
     })
@@ -38,8 +37,8 @@ router.get("/getOrders", async ctx => {
 })
 
 router.post("/addOrder", async ctx => {
-  const book = await Book.findOne({_id: ctx.request.body.bookId})
-  const user = await User.findOne({_id: ctx.request.body.userId})
+  const book = await Book.findOne({ _id: ctx.request.body.bookId })
+  const user = await User.findOne({ _id: ctx.request.body.userId })
   const newOrder = new Order({
     bookName: book.name,
     book: book._id,
@@ -61,7 +60,7 @@ router.post("/addOrder", async ctx => {
 })
 
 router.put("/updateOrder/:id", async ctx => {
-  const book = await Book.findOne({_id: ctx.request.body.bookId})
+  const book = await Book.findOne({ _id: ctx.request.body.bookId })
   const newOrder = {
     bookName: book.name,
     book: book._id,
@@ -87,21 +86,21 @@ router.delete("/deleteOrder/:id", async ctx => {
 })
 
 router.get("/getMoneys", async ctx => {
-  let query = {'user': {'$in': [mongoose.Types.ObjectId(ctx.request.query.id)]}} //这里需要转换成ObjectId
+  let query = { 'user': { '$in': [mongoose.Types.ObjectId(ctx.request.query.id)] } } //这里需要转换成ObjectId
   if (ctx.request.query.searchKey) {
     query.userName = ctx.request.query.searchKey
   }
 
-  if(ctx.request.query.searchDate && ctx.request.query.searchDate != 'null') {
+  if (ctx.request.query.searchDate && ctx.request.query.searchDate != 'null') {
     query.saleDate = {
-      $gte: Number(ctx.request.query.searchDate.split(",")[0]),
-      $lte: Number(ctx.request.query.searchDate.split(",")[1])
+      $gte: new Date(Number(ctx.request.query.searchDate.split(",")[0])),//这里需要转换成Date类型
+      $lte: new Date(Number(ctx.request.query.searchDate.split(",")[1]))
     }
     console.log(query)
   }
 
-  const users = await User.find({createUser: ctx.request.query.id})
-  if(users) {
+  const users = await User.find({ createUser: ctx.request.query.id })
+  if (users) {
     users.forEach(user => {
       query['user']['$in'].push(user._id)
     })
@@ -110,13 +109,13 @@ router.get("/getMoneys", async ctx => {
   const group = {
     $group: {
       _id: '$user',
-      sellIncome: {$sum: "$sellIncome"},
-      userName: {$first: '$userName'}
+      sellIncome: { $sum: "$sellIncome" },
+      userName: { $first: '$userName' }
     }
   }
 
-  const moneys = await Order.aggregate([{$match: query}, group]).skip(Number((ctx.request.query.currentPage - 1) * Number(ctx.request.query.pageSize))).limit(Number(ctx.request.query.pageSize))
-  const count = await Order.aggregate([{$match: query}, group])
+  const moneys = await Order.aggregate([{ $match: query }, group]).skip(Number((ctx.request.query.currentPage - 1) * Number(ctx.request.query.pageSize))).limit(Number(ctx.request.query.pageSize))
+  const count = await Order.aggregate([{ $match: query }, group])
 
   return ctx.body = {
     isSuccess: true,

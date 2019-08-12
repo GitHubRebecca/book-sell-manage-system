@@ -77,7 +77,8 @@ export default class BookList extends Vue {
             type: "success"
           });
 
-          this.tableData.splice(index, 1);
+          this.currentPage = 1
+          this.loadData()
         } else {
           this.$message({
             message: res.data.msg,
@@ -124,8 +125,6 @@ export default class BookList extends Vue {
   }
 
   handleSearch(): void {
-    // 点击搜索
-    // if(!this.searchKey) return
     this.currentPage = 1;
     this.loadData();
   }

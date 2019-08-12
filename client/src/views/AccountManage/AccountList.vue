@@ -73,7 +73,7 @@
             <div style="text-align:center;">
               <p style="line-height:40px;">该用户您确定删除吗？</p>
               <el-button size="mini" @click="scope.row.showDeletePopover=false">取消</el-button>
-              <el-button size="mini" type="danger" @click="handleDelete(scope.$index,scope.row)">确定</el-button>
+              <el-button size="mini" type="primary" @click="handleDelete(scope.$index,scope.row)">确定</el-button>
             </div>
             <el-button style="margin-left:10px;" slot="reference" size="mini" type="danger">删除</el-button>
           </el-popover>
@@ -82,8 +82,7 @@
     </el-table>
     <section class="pagination-wrapper">
       <el-pagination
-        background
-        layout="sizes, prev, pager, next, jumper"
+        layout="total,sizes, prev, pager, next, jumper"
         :page-sizes="[5,10]"
         :page-size="pageSize"
         :current-page="currentPage"
@@ -157,7 +156,6 @@ export default class AccountData extends Vue {
   }
 
   handlSearch(val: any){
-    if (this.searchKey == '') return
     this.currentPage = 1
     this.getData()
   }
@@ -181,14 +179,14 @@ export default class AccountData extends Vue {
             message: res.data.msg,
             type: "success"
           });
+          this.currentPage = 1
+          this.getData()
         } else {
           this.$message({
             message: res.data.msg,
             type: "error"
           });
         }
-
-        this.tableData.splice(index, 1);
       });
   }
 

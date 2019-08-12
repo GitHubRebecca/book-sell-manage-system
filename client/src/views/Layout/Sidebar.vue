@@ -1,5 +1,5 @@
 <template>
-  <div class="el-scrollbar">
+  <div class="sidebar-wrapper">
     <!-- 使用router 开启index跳转路径模式 -->
     <el-menu class="el-menu-slide" :default-active="$route.path" router> <!-- 也可以使用$router.currentRoute.path-->
       <template
@@ -48,7 +48,7 @@ export default class Sidebar extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.el-scrollbar {
+.sidebar-wrapper {
   height: 100%;
   border-right: 1px solid #e6e6e6;
   background: #fff;

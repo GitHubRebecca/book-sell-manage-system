@@ -3,7 +3,7 @@
     <el-row>
       <el-col :xs="10" :sm="12" :md="14" :lg="16" :xl="18">
         <div class="system-info">
-          <span class="title">网上书城</span>
+          <span class="title">网上书城管理系统</span>
         </div>
       </el-col>
       <el-col :xs="14" :sm="12" :md="10" :lg="8" :xl="6">
